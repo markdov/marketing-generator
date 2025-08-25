@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jim's Marketing Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #444;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            border-color: #0066cc;
+            outline: none;
+            background-color: #333;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #0077dd, #0055aa);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #b0b0b0;
+        }
+        
+        .research-progress {
+            display: none;
+            background-color: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .research-step {
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .research-step.active {
+            background-color: #1a2a3a;
+            border-left: 4px solid #0066cc;
+        }
+        
+        .research-step.completed {
+            background-color: #1a3a1a;
+            border-left: 4px solid #00aa00;
+        }
+        
+        .research-step .icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+
+        
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            border-left: 4px solid #0066cc;
+        }
+        
+        .result h3 {
+            color: #ffffff;
+            margin-top: 0;
+        }
+        
+        .content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background-color: #3a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+            border: 1px solid #aa0000;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #00aa44, #008833);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: linear-gradient(135deg, #00bb55, #009944);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 170, 68, 0.3);
+        }
+        
+        .example {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #b0b0b0;
+            border: 1px solid #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jim's Marketing Generator</h1>
+        <p class="subtitle">Generate research-backed, personalized marketing content that demonstrates due diligence</p>
+        
+        <div class="example">
+            <strong>Enhanced Research Mode:</strong> Enter "TechCorp Inc" and "Software Engineers, Product Managers" to generate highly targeted content backed by comprehensive company research, industry analysis, and competitive intelligence.
+        </div>
+        
+        <form id="marketingForm">
+            <div class="form-group">
+                <label for="company_name">Company Name</label>
+                <input type="text" id="company_name" name="company_name" placeholder="e.g., TechCorp Inc" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="company_url">Company Website (Optional)</label>
+                <input type="text" id="company_url" name="company_url" placeholder="e.g., https://www.techcorp.com">
+                <small style="color: #b0b0b0; font-size: 14px;">Adding the website helps AI analyze the company's actual services, culture, and recent announcements</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="job_roles">Job Roles They're Hiring For</label>
+                <textarea id="job_roles" name="job_roles" placeholder="e.g., Software Engineers, Product Managers, Data Scientists" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="company_context">Additional Company Context (Optional)</label>
+                <textarea id="company_context" name="company_context" placeholder="e.g., They're a Series B startup focusing on AI-powered healthcare solutions. Recently raised $50M and expanding rapidly. Known for their innovative approach to patient data analysis..." style="height: 120px;"></textarea>
+                <small style="color: #b0b0b0; font-size: 14px;">Any additional context about the company, their challenges, recent news, or specific information that would help personalize the content</small>
+            </div>
+            
+            <button type="submit" class="btn" id="generateBtn">Generate Marketing Content</button>
+        </form>
+        
+        <div class="document-options" id="documentOptions" style="display: none;">
+            <h4 style="color: #ffffff; margin-bottom: 15px;">📄 Document Options</h4>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn" id="downloadDocBtn" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #6c5ce7, #5a4fcf);">
+                    📄 Download Word Document
+                </button>
+                <button class="btn" id="generateNewDocBtn" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #00b894, #00a085);">
+                    🔄 Generate New Document
+                </button>
+            </div>
+            <p style="color: #b0b0b0; font-size: 14px; margin-top: 10px; text-align: center;">
+                Download a professionally formatted Word document that matches Template1.pdf style
+            </p>
+        </div>
+        
+        <div class="loading" id="loading">
+            <p>🤖 Generating personalized content...</p>
+        </div>
+        
+        <div class="research-progress" id="researchProgress">
+            <h4>🔍 Research & Analysis in Progress</h4>
+            <div class="research-step" id="step1">
+                <span class="icon">⏳</span>
+                <span>Searching for company information and recent developments</span>
+            </div>
+            <div class="research-step" id="step2">
+                <span class="icon">⏳</span>
+                <span>Analyzing company data and extracting key insights</span>
+            </div>
+            <div class="research-step" id="step3">
+                <span class="icon">⏳</span>
+                <span>Researching industry trends and competitive landscape</span>
+            </div>
+            <div class="research-step" id="step4">
+                <span class="icon">⏳</span>
+                <span>Generating personalized marketing content with research findings</span>
+            </div>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+
+        
+        <div class="result" id="result">
+            <h3>📄 Generated Marketing Content</h3>
+            <div class="content" id="content"></div>
+            <button class="copy-btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        let researchSteps = [];
+        
+        document.getElementById('marketingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const companyName = document.getElementById('company_name').value.trim();
+            const companyUrl = document.getElementById('company_url').value.trim();
+            const jobRoles = document.getElementById('job_roles').value.trim();
+            const companyContext = document.getElementById('company_context').value.trim();
+            
+            if (!companyName || !jobRoles) {
+                showError('Please fill in both company name and job roles');
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = 'Researching & Generating...';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('researchProgress').style.display = 'block';
+
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            // Simulate research progress
+            startResearchProgress();
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        company_name: companyName,
+                        company_url: companyUrl,
+                        job_roles: jobRoles,
+                        company_context: companyContext
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store form data and content for document generation
+                    currentFormData = {
+                        company_name: companyName,
+                        company_url: companyUrl,
+                        job_roles: jobRoles,
+                        company_context: companyContext
+                    };
+                    currentContent = data.content;
+                    
+                    // Complete all research steps
+                    completeAllResearchSteps();
+                    
+                    // Show final result
+                    showResult(data.content);
+                } else {
+                    showError(data.error || 'Failed to generate content');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                // Reset button state
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').textContent = 'Generate Marketing Content';
+                document.getElementById('researchProgress').style.display = 'none';
+            }
+        });
+        
+        function startResearchProgress() {
+            // Reset all steps
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'research-step';
+                step.querySelector('.icon').textContent = '⏳';
+            }
+            
+            // Animate steps sequentially
+            let currentStep = 1;
+            researchSteps = setInterval(() => {
+                if (currentStep <= 4) {
+                    // Mark current step as active
+                    const step = document.getElementById(`step${currentStep}`);
+                    step.className = 'research-step active';
+                    step.querySelector('.icon').textContent = '🔄';
+                    
+                    // Mark previous step as completed
+                    if (currentStep > 1) {
+                        const prevStep = document.getElementById(`step${currentStep - 1}`);
+                        prevStep.className = 'research-step completed';
+                        prevStep.querySelector('.icon').textContent = '✅';
+                    }
+                    
+                    currentStep++;
+                } else {
+                    clearInterval(researchSteps);
+                }
+            }, 2000);
+        }
+        
+        function completeAllResearchSteps() {
+            clearInterval(researchSteps);
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'research-step completed';
+                step.querySelector('.icon').textContent = '✅';
+            }
+        }
+        
+
+        
+        function showResult(content) {
+            document.getElementById('content').textContent = content;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('documentOptions').style.display = 'block';
+        }
+        
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('researchProgress').style.display = 'none';
+
+        }
+        
+        function copyToClipboard() {
+            const content = document.getElementById('content').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+        
+        // Store current form data and content for document generation
+        let currentFormData = {};
+        let currentContent = '';
+        
+        // Document generation event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('downloadDocBtn').addEventListener('click', downloadDocument);
+            document.getElementById('generateNewDocBtn').addEventListener('click', generateNewDocument);
+        });
+        
+        async function downloadDocument() {
+            if (!currentContent || !currentFormData.company_name) {
+                showError('Please generate content first before downloading a document');
+                return;
+            }
+            
+            const btn = document.getElementById('downloadDocBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ Generating Document...';
+            
+            try {
+                const response = await fetch('/generate-document', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...currentFormData,
+                        content: currentContent
+                    })
+                });
+                
+                if (response.ok) {
+                    // Create download link
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    // Extract filename from response headers or create default
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = 'TalentCraft_Proposal.docx';
+                    if (contentDisposition) {
+                        const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (matches && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // Success feedback
+                    btn.textContent = '✅ Downloaded!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 3000);
+                } else {
+                    const errorData = await response.json();
+                    showError(errorData.error || 'Failed to generate document');
+                }
+            } catch (error) {
+                showError('Network error during document generation: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                if (btn.textContent.startsWith('⏳')) {
+                    btn.textContent = originalText;
+                }
+            }
+        }
+        
+        async function generateNewDocument() {
+            if (!currentFormData.company_name) {
+                showError('Please generate content first');
+                return;
+            }
+            
+            const btn = document.getElementById('generateNewDocBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ Generating New...';
+            
+            try {
+                const response = await fetch('/generate-document', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(currentFormData) // Don't include content to force regeneration
+                });
+                
+                if (response.ok) {
+                    // Create download link
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    // Extract filename from response headers or create default
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = 'TalentCraft_Proposal.docx';
+                    if (contentDisposition) {
+                        const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (matches && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // Success feedback
+                    btn.textContent = '✅ Downloaded!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 3000);
+                } else {
+                    const errorData = await response.json();
+                    showError(errorData.error || 'Failed to generate new document');
+                }
+            } catch (error) {
+                showError('Network error during document generation: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                if (btn.textContent.startsWith('⏳')) {
+                    btn.textContent = originalText;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
