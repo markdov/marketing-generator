@@ -6,6 +6,7 @@ with comprehensive company research and industry analysis
 """
 
 import os
+import sys
 import re
 import time
 import json
@@ -1004,23 +1005,66 @@ def index():
     """Main page with the form"""
     return render_template('index.html')
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for debugging"""
+    try:
+        api_key_status = "✅ Set" if gemini_api_key else "❌ Missing"
+        return jsonify({
+            'status': 'healthy',
+            'gemini_api_key': api_key_status,
+            'python_version': sys.version,
+            'flask_version': '3.0.0'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 @app.route('/generate', methods=['POST'])
 def generate():
     """Generate research-backed marketing content"""
     try:
+        # Add logging for debugging
+        print("=== GENERATE ENDPOINT CALLED ===")
+        
+        # Check if request has JSON data
+        if not request.is_json:
+            print("ERROR: Request is not JSON")
+            return jsonify({'error': 'Request must be JSON'}), 400
+        
         data = request.get_json()
+        print(f"Received data: {data}")
+        
+        if data is None:
+            print("ERROR: No JSON data received")
+            return jsonify({'error': 'No JSON data received'}), 400
+        
         company_name = data.get('company_name', '').strip()
         company_url = data.get('company_url', '').strip()
         job_roles = data.get('job_roles', '').strip()
         company_context = data.get('company_context', '').strip()
         
+        print(f"Parsed - Company: {company_name}, Roles: {job_roles}")
+        
         if not company_name or not job_roles:
+            print("ERROR: Missing required fields")
             return jsonify({'error': 'Please provide both company name and job roles'}), 400
+        
+        # Check if Gemini API key is available
+        if not gemini_api_key:
+            print("ERROR: GEMINI_API_KEY not set")
+            return jsonify({'error': 'Server configuration error: API key not set'}), 500
+        
+        print("Starting research and content generation...")
         
         # Research and generate enhanced content
         result = research_and_generate_content(company_name, job_roles, company_url, company_context)
         
-        return jsonify({
+        print(f"Generation completed. Content length: {len(result.get('content', ''))}")
+        
+        response_data = {
             'success': True,
             'content': result['content'],
             'company_name': company_name,
@@ -1028,10 +1072,17 @@ def generate():
             'research_insights': result['research_insights'],
             'sources_analyzed': result['search_results_count'],
             'research_quality': "High" if result['search_results_count'] > 5 else "Medium" if result['search_results_count'] > 2 else "Basic"
-        })
+        }
+        
+        print("Returning successful response")
+        return jsonify(response_data)
     
     except Exception as e:
-        return jsonify({'error': f"Research and generation failed: {str(e)}"}), 500
+        error_msg = f"Research and generation failed: {str(e)}"
+        print(f"ERROR: {error_msg}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': error_msg}), 500
 
 @app.route('/generate-document', methods=['POST'])
 def generate_document():
